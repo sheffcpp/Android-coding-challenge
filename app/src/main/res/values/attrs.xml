@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="MyTheme">
+        <attr name="starOn" format="color" />
+        <attr name="starOff" format="color" />
+    </declare-styleable>
+</resources>

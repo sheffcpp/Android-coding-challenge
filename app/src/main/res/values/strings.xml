@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Movie App</string>
+    <string name="vote_average">Vote avg.: %s</string>
+    <string name="vote_count">Vote count: %s</string>
+    <string name="popularity">Popularity: %s</string>
+    <string name="original_language">Original language: %s</string>
+    <string name="original_title">Original title: %s</string>
+    <string name="details">Click to see details</string>
+    <string name="page_out_of_max">%s/%s</string>
+    <string name="release_date">Release date: %s</string>
+    <string name="arrow_right">{faw-arrow-right}</string>
+    <string name="arrow_left">{faw-arrow-left}</string>
+    <string name="close">Close</string>
+    <string name="Error">Error</string>
+    <string name="Error_message">Something went wrong, check your internet connection.</string>
+    <string name="ok">OK</string>
+
+</resources>
