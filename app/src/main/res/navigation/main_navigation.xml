@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/mainListFragment"
-        android:name="com.example.codingchallangemovieapp.MainListFragment"
+        android:name="com.example.codingchallangemovieapp.ui.MainListFragment"
         android:label="MainListFragment">
         <action
             android:id="@+id/action_mainListFragment_to_movieDetailsFragment"
@@ -14,6 +14,6 @@
     </fragment>
     <fragment
         android:id="@+id/movieDetailsFragment"
-        android:name="com.example.codingchallangemovieapp.MovieDetailsFragment"
+        android:name="com.example.codingchallangemovieapp.ui.MovieDetailsFragment"
         android:label="MovieDetailsFragment" />
 </navigation>

@@ -1,14 +1,14 @@
-package com.example.codingchallangemovieapp
+package com.example.codingchallangemovieapp.ui
 
 import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class FavouriteManager(context: Context, val scope: CoroutineScope) {
+class FavouriteManager(context: Context) {
 
     private companion object {
         private const val PREFS_NAME = "favourite_prefs"
@@ -32,18 +32,18 @@ class FavouriteManager(context: Context, val scope: CoroutineScope) {
 
     val favouriteMovies = MutableStateFlow<List<Int>>(getFavourites())
 
-    private fun saveFavourites(favourites: List<Int>) {
+    private suspend fun saveFavourites(favourites: List<Int>) {
         val favouritesJson = gson.toJson(favourites)
         sharedPreferences.edit()
             .putString(FAVOURITES_KEY, favouritesJson)
             .apply()
 
-        scope.launch {
+        withContext(Dispatchers.IO) {
             favouriteMovies.emit(getFavourites().toList())
         }
     }
 
-    fun addFavourite(item: Int) {
+    suspend fun addFavourite(item: Int) {
         val favourites = getFavourites()
         if (!favourites.contains(item)) {
             favourites.add(item)
@@ -51,7 +51,7 @@ class FavouriteManager(context: Context, val scope: CoroutineScope) {
         }
     }
 
-    fun removeFavourite(item: Int) {
+    suspend fun removeFavourite(item: Int) {
         val favourites = getFavourites()
         if (favourites.contains(item)) {
             favourites.remove(item)

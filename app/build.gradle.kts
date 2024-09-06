@@ -62,6 +62,9 @@ dependencies {
     implementation(libs.mikepenz.iconics.views)
     implementation(libs.fontawesome.typeface)
     implementation(libs.glide)
+    implementation(libs.koin.android)
+//    implementation(libs.insert.koin.koin.androidx.viewmodel)
+    implementation(libs.insert.koin.koin.androidx.navigation)
     annotationProcessor(libs.glide.compiler)
-//    implementation("com.mikepenz:fontawesome-typeface:5.9.0.3-kotlin@aar")
+
 }
