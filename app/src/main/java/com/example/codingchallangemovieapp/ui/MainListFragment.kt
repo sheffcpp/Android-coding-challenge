@@ -1,4 +1,4 @@
-package com.example.codingchallangemovieapp
+package com.example.codingchallangemovieapp.ui
 
 import android.app.AlertDialog
 import android.os.Bundle
@@ -7,17 +7,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.codingchallangemovieapp.MovieListViewModel.Companion.MIN_PAGE
+import com.example.codingchallangemovieapp.R
 import com.example.codingchallangemovieapp.databinding.FragmentMainListBinding
+import com.example.codingchallangemovieapp.vm.MovieListViewModel
+import com.example.codingchallangemovieapp.vm.MovieListViewModel.Companion.MIN_PAGE
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import org.koin.androidx.navigation.koinNavGraphViewModel
 
 class MainListFragment : Fragment() {
 
@@ -28,7 +30,7 @@ class MainListFragment : Fragment() {
     private var _binding: FragmentMainListBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: MovieListViewModel by activityViewModels()
+    private val viewModel: MovieListViewModel by koinNavGraphViewModel(R.id.main_navigation)
 
     override fun onCreateView(
         inflater: LayoutInflater,

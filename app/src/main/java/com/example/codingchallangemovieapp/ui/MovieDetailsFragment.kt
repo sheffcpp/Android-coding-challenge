@@ -1,4 +1,4 @@
-package com.example.codingchallangemovieapp
+package com.example.codingchallangemovieapp.ui
 
 import android.os.Bundle
 import android.util.Log
@@ -7,19 +7,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.example.codingchallangemovieapp.R
 import com.example.codingchallangemovieapp.databinding.FragmentMovieDetailsBinding
+import com.example.codingchallangemovieapp.vm.MovieListViewModel
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.typeface.library.fontawesome.FontAwesome
 import com.mikepenz.iconics.utils.colorInt
 import com.mikepenz.iconics.utils.sizeDp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.koin.androidx.navigation.koinNavGraphViewModel
 
 class MovieDetailsFragment : Fragment() {
     companion object {
@@ -32,7 +34,7 @@ class MovieDetailsFragment : Fragment() {
     private var _binding: FragmentMovieDetailsBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: MovieListViewModel by activityViewModels()
+    private val viewModel: MovieListViewModel by koinNavGraphViewModel(R.id.main_navigation)
 
     override fun onCreateView(
         inflater: LayoutInflater,

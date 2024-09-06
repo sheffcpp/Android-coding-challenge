@@ -1,12 +1,15 @@
-package com.example.codingchallangemovieapp
+package com.example.codingchallangemovieapp.vm
 
-import android.app.Application
+import android.content.Context
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.codingchallangemovieapp.BuildConfig
+import com.example.codingchallangemovieapp.R
 import com.example.codingchallangemovieapp.api.ApiClient
 import com.example.codingchallangemovieapp.model.Movie
 import com.example.codingchallangemovieapp.model.MovieListWrapper
+import com.example.codingchallangemovieapp.ui.FavouriteManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +26,10 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
-class MovieListViewModel(application: Application) : AndroidViewModel(application) {
+class MovieListViewModel(
+    private val context: Context,
+    private val favouriteManager: FavouriteManager
+) : ViewModel() {
     companion object {
         private val TAG = MovieListViewModel::class.simpleName
         const val MIN_PAGE = 1
@@ -36,7 +42,7 @@ class MovieListViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val maxPages = MutableStateFlow(MIN_PAGE)
 
-    private val favouriteManager = FavouriteManager(application, viewModelScope + Dispatchers.IO)
+    //    private val favouriteManager = FavouriteManager(context, viewModelScope + Dispatchers.IO)
     private val favManagerMutex = Mutex()
 
     private val _errorFlow = MutableSharedFlow<Int>()
