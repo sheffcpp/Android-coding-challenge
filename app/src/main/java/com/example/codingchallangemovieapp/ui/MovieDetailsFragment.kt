@@ -36,6 +36,8 @@ class MovieDetailsFragment : Fragment() {
 
     private val viewModel: MovieListViewModel by koinNavGraphViewModel(R.id.main_navigation)
 
+    private val mainDispatcher = Dispatchers.Main
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -49,32 +51,36 @@ class MovieDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
+        viewLifecycleOwner.lifecycleScope.launch(mainDispatcher) {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.currentMovieDetails.collect { _movieData ->
-                    _movieData?.let { movieData ->
-                        binding.title.text = movieData.title
-                        binding.originalTitle.text =
-                            getString(R.string.original_title, movieData.original_title)
-                        binding.overview.text = movieData.overview
-                        binding.originalLanguage.text =
-                            getString(R.string.original_language, movieData.original_language)
-                        binding.popularity.text =
-                            getString(R.string.popularity, movieData.popularity.toString())
-                        binding.releaseDate.text =
-                            getString(R.string.release_date, movieData.release_date)
-                        binding.voteAverage.text =
-                            getString(R.string.vote_average, movieData.vote_average.toString())
-                        binding.voteCount.text =
-                            getString(R.string.vote_count, movieData.vote_count.toString())
+                    binding.title.post {
+                        _movieData?.let { movieData ->
+                            binding.title.text = movieData.title
+                            binding.originalTitle.text =
+                                getString(R.string.original_title, movieData.original_title)
+                            binding.overview.text = movieData.overview
+                            binding.originalLanguage.text =
+                                getString(R.string.original_language, movieData.original_language)
+                            binding.popularity.text =
+                                getString(R.string.popularity, movieData.popularity.toString())
+                            binding.releaseDate.text =
+                                getString(R.string.release_date, movieData.release_date)
+                            binding.voteAverage.text =
+                                getString(R.string.vote_average, movieData.vote_average.toString())
+                            binding.voteCount.text =
+                                getString(R.string.vote_count, movieData.vote_count.toString())
 
-                        val imageUrl = TMDB_IMAGE_URL + movieData.backdrop_path
-                        Glide.with(requireContext())
-                            .load(imageUrl)
-                            .apply(RequestOptions().override(IMAGE_WIDTH, IMAGE_HEIGHT).fitCenter())
-                            .into(binding.image)
+                            val imageUrl = TMDB_IMAGE_URL + movieData.backdrop_path
+                            Glide.with(requireContext())
+                                .load(imageUrl)
+                                .apply(
+                                    RequestOptions().override(IMAGE_WIDTH, IMAGE_HEIGHT).fitCenter()
+                                )
+                                .into(binding.image)
 
-                        handleIsFavourite(_movieData.favourite)
+                            handleIsFavourite(_movieData.favourite)
+                        }
                     }
                 }
             }

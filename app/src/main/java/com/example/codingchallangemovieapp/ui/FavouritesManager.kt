@@ -4,11 +4,11 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.withContext
 
-class FavouriteManager(context: Context) {
+class FavouriteManager(context: Context, private val defaultDispatcher: CoroutineDispatcher) {
 
     private companion object {
         private const val PREFS_NAME = "favourite_prefs"
@@ -38,7 +38,8 @@ class FavouriteManager(context: Context) {
             .putString(FAVOURITES_KEY, favouritesJson)
             .apply()
 
-        withContext(Dispatchers.IO) {
+//        println("clt fm ${getFavourites()}")
+        withContext(defaultDispatcher) {
             favouriteMovies.emit(getFavourites().toList())
         }
     }
