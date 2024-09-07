@@ -14,11 +14,15 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.codingchallangemovieapp.R
 import com.example.codingchallangemovieapp.databinding.FragmentMainListBinding
+import com.example.codingchallangemovieapp.di.IO
 import com.example.codingchallangemovieapp.vm.MovieListViewModel
 import com.example.codingchallangemovieapp.vm.MovieListViewModel.Companion.MIN_PAGE
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.koin.android.ext.android.inject
 import org.koin.androidx.navigation.koinNavGraphViewModel
 
 class MainListFragment : Fragment() {
@@ -31,6 +35,9 @@ class MainListFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: MovieListViewModel by koinNavGraphViewModel(R.id.main_navigation)
+
+    private val ioDispatcher: CoroutineDispatcher by inject(IO)
+    private val mainDispatcher = Dispatchers.Main
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -60,7 +67,7 @@ class MainListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
+        viewLifecycleOwner.lifecycleScope.launch(mainDispatcher) {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.isLoading.collect { isLoading ->
                     binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
@@ -70,9 +77,10 @@ class MainListFragment : Fragment() {
             }
         }
 
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+        viewLifecycleOwner.lifecycleScope.launch(ioDispatcher) {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.currentlyDisplayedMovies.collectLatest { moviesWrapper ->
+//                    println("clt = ${moviesWrapper.movies}")
                     binding.movieListRecycler.post {
                         (binding.movieListRecycler.adapter as MovieListAdapter).updateMovieList(
                             moviesWrapper.movies
@@ -82,32 +90,32 @@ class MainListFragment : Fragment() {
             }
         }
 
-        viewLifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch(mainDispatcher) {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.pagingDisplay.collectLatest { pagingData ->
-                    binding.PageIndicator.post {
-                        val (currPage, maxPages) = pagingData
-                        binding.PageIndicator.text = getString(
-                            R.string.page_out_of_max,
-                            currPage.toString(),
-                            maxPages.toString()
-                        )
-                        binding.nextPageButton.isEnabled = currPage < maxPages
-                        binding.prevPageButton.isEnabled = currPage > MIN_PAGE
-                    }
+                    val (currPage, maxPages) = pagingData
+                    binding.PageIndicator.text = getString(
+                        R.string.page_out_of_max,
+                        currPage.toString(),
+                        maxPages.toString()
+                    )
+                    binding.nextPageButton.isEnabled = currPage < maxPages
+                    binding.prevPageButton.isEnabled = currPage > MIN_PAGE
                 }
             }
         }
-        viewLifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch(mainDispatcher) {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.errorFlow.collect { errorId ->
-                    AlertDialog.Builder(requireContext())
-                        .setTitle(R.string.Error)
-                        .setMessage(errorId)
-                        .setPositiveButton(R.string.ok) { dialog, _ ->
-                            dialog.dismiss()
-                        }
-                        .show()
+                    withContext(Dispatchers.Main) {
+                        AlertDialog.Builder(requireContext())
+                            .setTitle(R.string.Error)
+                            .setMessage(errorId)
+                            .setPositiveButton(R.string.ok) { dialog, _ ->
+                                dialog.dismiss()
+                            }
+                            .show()
+                    }
                 }
             }
         }

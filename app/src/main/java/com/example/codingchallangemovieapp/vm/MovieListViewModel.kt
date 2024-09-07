@@ -1,6 +1,5 @@
 package com.example.codingchallangemovieapp.vm
 
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,6 +9,7 @@ import com.example.codingchallangemovieapp.api.ApiClient
 import com.example.codingchallangemovieapp.model.Movie
 import com.example.codingchallangemovieapp.model.MovieListWrapper
 import com.example.codingchallangemovieapp.ui.FavouriteManager
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,8 +27,9 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 class MovieListViewModel(
-    private val context: Context,
-    private val favouriteManager: FavouriteManager
+    private val favouriteManager: FavouriteManager,
+    private val ioDispatcher: CoroutineDispatcher,
+    private val uiDispatcher: CoroutineDispatcher = Dispatchers.Main
 ) : ViewModel() {
     companion object {
         private val TAG = MovieListViewModel::class.simpleName
@@ -42,7 +43,6 @@ class MovieListViewModel(
 
     private val maxPages = MutableStateFlow(MIN_PAGE)
 
-    //    private val favouriteManager = FavouriteManager(context, viewModelScope + Dispatchers.IO)
     private val favManagerMutex = Mutex()
 
     private val _errorFlow = MutableSharedFlow<Int>()
@@ -50,19 +50,19 @@ class MovieListViewModel(
 
 
     private val moviesForCurrentPage: StateFlow<List<Movie>> = currentPage.map { pageNo ->
-        withContext(Dispatchers.Main) {
+        println("a")
+        withContext(uiDispatcher) {
             _isLoading.emit(true)
         }
+        println("b")
         Log.d(TAG, "requesting page $pageNo")
         val call = ApiClient.apiService.getNowPlayingMovies(BuildConfig.API_KEY, pageNo)
         val responseData = runCatching {
-            val response =
-                withContext(Dispatchers.IO) {
-                    call.execute()
-                }
+
+            val response = withContext(ioDispatcher) { call.execute() }
             response.also {
                 it.body()?.let { moviesRsp ->
-                    withContext(Dispatchers.Main) {
+                    withContext(uiDispatcher) {
                         maxPages.emit(moviesRsp.total_pages)
                     }
                     Log.d(TAG, "Total pages ${moviesRsp.total_pages}")
@@ -74,20 +74,24 @@ class MovieListViewModel(
             showErrorDialog()
         }.getOrNull()
 
-        withContext(Dispatchers.Main) {
+        withContext(uiDispatcher) {
             _isLoading.emit(false)
         }
 
+//        println("clt mfcp ${responseData?.body()?.results ?: emptyList()}")
         responseData?.body()?.results ?: emptyList()
-    }.stateIn(viewModelScope + Dispatchers.IO, SharingStarted.Eagerly, emptyList())
+    }.stateIn(viewModelScope + ioDispatcher, SharingStarted.Eagerly, emptyList())
 
     val currentlyDisplayedMovies: StateFlow<MovieListWrapper> =
         moviesForCurrentPage.combine(favouriteManager.favouriteMovies) { movies, favouriteIds ->
-            MovieListWrapper(movies.apply {
+//            println("clt cdm = ${movies} ${favouriteIds}")
+            val c = MovieListWrapper(movies.apply {
                 onEach { movie ->
                     movie.favourite = favouriteIds.contains(movie.id)
                 }
             })
+//            println("clt cdm 2 $c")
+            c
         }.stateIn(
             viewModelScope + Dispatchers.IO,
             SharingStarted.Eagerly,
@@ -144,7 +148,7 @@ class MovieListViewModel(
             currentlyDisplayedMovies.value.movies.firstOrNull {
                 it.id == movieId
             }?.run {
-                withContext(Dispatchers.Main) {
+                withContext(uiDispatcher) {
                     _currentMovieDetails.emit(this@run)
                 }
             }
@@ -155,7 +159,7 @@ class MovieListViewModel(
     fun handleDetailsStarButton(): Boolean {
         _currentMovieDetails.value?.let { currentMovie ->
             val isFav = !currentMovie.favourite
-            viewModelScope.launch(Dispatchers.IO) {
+            viewModelScope.launch(ioDispatcher) {
                 if (isFav) {
                     addToFavourites(currentMovie.id)
                 } else {
@@ -168,7 +172,7 @@ class MovieListViewModel(
     }
 
     private fun showErrorDialog() {
-        viewModelScope.launch(Dispatchers.Main) {
+        viewModelScope.launch(uiDispatcher) {
             _errorFlow.emit(R.string.Error_message)
         }
     }
