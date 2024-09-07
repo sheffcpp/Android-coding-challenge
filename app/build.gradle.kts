@@ -7,6 +7,8 @@ android {
     namespace = "com.example.codingchallangemovieapp"
     compileSdk = 34
 
+    useLibrary("android.test.mock")
+
     val API_KEY: String by project
 
     defaultConfig {
@@ -58,6 +60,8 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    testImplementation(libs.robolectric.v481)
+    testImplementation(libs.insert.koin.koin.test)
     implementation(libs.iconics.core)
     implementation(libs.mikepenz.iconics.views)
     implementation(libs.fontawesome.typeface)
