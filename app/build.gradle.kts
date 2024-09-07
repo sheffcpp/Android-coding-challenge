@@ -1,6 +1,15 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+}
+
+val apiKeyPropertiesFile = rootProject.file("apiKey.properties")
+val apiKeyProperties = Properties()
+
+if (apiKeyPropertiesFile.exists()) {
+    apiKeyProperties.load(apiKeyPropertiesFile.inputStream())
 }
 
 android {
@@ -20,7 +29,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "API_KEY", "\"$API_KEY\"")
+        buildConfigField("String", "API_KEY", "\"${apiKeyProperties["API_KEY"]}\"")
     }
 
     buildFeatures {
